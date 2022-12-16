@@ -1,3 +1,2 @@
 # Cribbage-Calculator
-Calculates the points of a hand in the card game Cribbage, and uses heuristics to determine optimal crib passes.
-Has not been made user friendly, I've just been instantiating cards by manually creating Card objects and plugging them into some functions
+Calculates the points of a hand in the card game Cribbage, and uses heuristics to determine optimal crib passes. Has not been made user friendly, I've just been instantiating cards by manually creating Card objects and plugging them into some functions. Some things are commented out in calc.py, this is to not overflow the terminal because usually only a select output is necessary, this should probably be re-abstracted.
