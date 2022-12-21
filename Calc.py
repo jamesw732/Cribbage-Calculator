@@ -161,4 +161,4 @@ def getOptimalPass(deck, prepass, dealer):
         print("\n\nSafest Pass (best difference between avg hand and avg crib) when not dealer")
         printStats(safest, bestDifferentialHand, optimalSafeCuts, safePass, safeCrib)
         print("Average difference between hand and crib:")
-        print(round(safest - safeCrib, 3))
+        print(round(bestDifferentialHand - safeCrib, 3))
