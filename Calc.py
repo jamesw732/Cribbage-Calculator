@@ -1,42 +1,38 @@
 from Card import *
 from crib import getAvgCribScore
-import random
 
 suits = ["h", "d", "s", "c"]
 ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
-# def getAvgCribScore(deck, twoCards): # inputs are two cards you pass and all possible cards that could make up crib
-#     totalHands = 0
-#     totalScore = 0
-#     for i in range(len(deck) - 1):
-#         crib1 = deck[i]
-#         for j in range(i + 1, len(deck)):
-#             crib2 = deck[j]
-#             for cut in deck:
-#                 if cut != crib1 and cut != crib2:
-#                     hand = Hand([crib1, crib2, twoCards[0], twoCards[1]], cut)
-#                     totalHands += 1
-#                     totalScore += hand.calculatePoints(True)
-#     return totalScore / totalHands
-
-
 
 
 def makeDeck(hand):
     return [Card(r, s) for r in ranks for s in suits if Card(r, s) not in hand]
 
+def printStats(hand, handScore, bestCuts, passed, cribScore):
+    print(f"{round(handScore, 3)} points")
+    print("Hand:")
+    for card in hand:
+        print(card, end=", ")
+    print()
+    print("Cards Passed:")
+    for card in passed:
+        print(card, end=", ")
+    print()
+    print("Best Cuts: ")
+    for card in bestCuts:
+        print(card, end=", ")
+    print()
+    print("Average Crib Score:")
+    print(round(cribScore, 3))
 
-def getOptimalPass(deck, prepass):
+def getOptimalPass(deck, prepass, dealer):
     maxScore = 0
     minScore = 0
     maxAvg = 0
-    bestDefPts = 29
+    defScore = 0
     bestDifferential = -29
     bestSum = 0
     bestSumHandPts = 0
-    bestSumCribPts = 0
-
-    bestDifferentialCrib = 0
     bestDifferentialHand = 0
 
     highestMax = []
@@ -49,6 +45,15 @@ def getOptimalPass(deck, prepass):
     optimalMaxCuts = []
     optimalMinCuts = []
     optimalAvgCuts = []
+    optimalDefCuts = []
+    optimalSafeCuts = []
+
+    maxCrib = 0
+    minCrib = 0
+    avgCrib = 0
+    defCrib = 29
+    safeCrib = 0
+    sumCrib = 0
 
     maxPass = []
     minPass = []
@@ -79,143 +84,81 @@ def getOptimalPass(deck, prepass):
             # overall extremes
             handAvg /= 46
             cribScore = getAvgCribScore([prepass[i], prepass[j]], deck)
-            if cribScore < bestDefPts:
+            if cribScore < defCrib: # update defensive pass
                 highestDef = keeps
-                bestDefPts = cribScore
+                defCrib = cribScore
+                defScore = handAvg
+                optimalDefCuts = bestCuts
                 defPass = [prepass[i], prepass[j]]
-            if handAvg > maxAvg:
+            if handAvg > maxAvg: # update best average hand
                 maxAvg = handAvg
                 highestAvg = keeps
                 optimalAvgCuts = bestCuts
                 avgPass = [prepass[i], prepass[j]]
-            if handMax > maxScore:
+                avgCrib = cribScore
+            if handMax > maxScore: # update best max hand
                 maxScore = handMax
                 highestMax = keeps
                 optimalMaxCuts = bestCuts
                 maxPass = [prepass[i], prepass[j]]
-            if handMin > minScore:
+                maxCrib = cribScore
+            if handMin > minScore: # update best min hand
                 minScore = handMin
                 highestMin = keeps
                 optimalMinCuts = bestCuts
                 minPass = [prepass[i], prepass[j]]
-            if (handAvg - cribScore > bestDifferential):
+                minCrib = cribScore
+            if (handAvg - cribScore > bestDifferential): # update safest hand
                 bestDifferential = handAvg - cribScore
                 safest = keeps
                 safePass = [prepass[i], prepass[j]]
-                bestDifferentialCrib = cribScore
                 bestDifferentialHand = handAvg
-            if (handAvg + cribScore > bestSum):
+                optimalSafeCuts = bestCuts
+                safeCrib = cribScore
+            if (handAvg + cribScore > bestSum): # update best dealer hand
                 bestSum = handAvg + cribScore
                 sumHand = keeps
                 sumPass = [prepass[i], prepass[j]]
                 bestSumHandPts = handAvg
-                bestSumCribPts = cribScore
+                sumCrib = cribScore
             # difference between hand avg and crib avg
     print("=================================================================================")
     print("Original Hand:")
     for card in prepass:
         print(card, end=", ")
-    print("\n")
-    # print("Maximum Possible Score:")
-    # print(maxScore)
-    # for card in highestMax:
-    #     print(card, end=", ")
-    # print()
-    # print("Best Cuts:")
-    # for card in optimalMaxCuts:
-    #     print(card, end=", ")
-    # print()
-    # print("Cards Passed: ")
-    # for card in maxPass:
-    #     print(card,end=", ")
-    # print()
-    # print("Average Crib Score:")
-    # print(getAvgCribScore(maxPass, deck))
-    # print("\n")
+    print("\n\n")
+  
+    print("Maximum Possible Score:")
+    printStats(highestMax, maxScore, optimalMaxCuts, maxPass, maxCrib)
 
 
-    # print("Highest Minimum Score:")
-    # print(minScore)
-    # for card in highestMin:
-    #     print(card, end=", ")
-    # print()
-    # print("Best Cuts:")
-    # for card in optimalMinCuts:
-    #     print(card, end=", ")
-    # print()
-    # print("Cards Passed: ")
-    # for card in minPass:
-    #     print(card,end=", ")
-    # print()
-    # print("Average Crib Score:")
-    # print(getAvgCribScore(minPass, deck))
-    # print("\n")
+    print("\n\nHighest Minimum Score:")
+    printStats(highestMin, minScore, optimalMinCuts, minPass, minCrib)
 
+    print("\n\nHighest Average Score:")
+    printStats(highestAvg, maxAvg, optimalAvgCuts, avgPass, avgCrib)
 
-    # print("Highest Average Score:")
-    # print(maxAvg)
-    # for card in highestAvg:
-    #     print(card, end=", ")
-    # print()
-    # print("Best Cuts:")
-    # for card in optimalAvgCuts:
-    #     print(card, end=", ")
-    # print()
-    # print("Cards Passed: ")
-    # for card in avgPass:
-    #     print(card,end=", ")
-    # print()
-    # print("Average Crib Score:")
-    # print(getAvgCribScore(avgPass, deck))
-    # print("\n")
+    if dealer:
+        print("\n\nBest sum of crib and hand for dealer")
+        for card in sumHand:
+            print(card, end=", ")
+        print()
+        print("Pass:")
+        for card in sumPass:
+            print(card, end=", ")
+        print()
+        print("Average Hand Score:")
+        print(round(bestSumHandPts, 3))
+        print("Average Crib Score:")
+        print(round(sumCrib, 3))
+        print("Sum of hand and crib:")
+        print(round(bestSum, 3))
 
-    # print("Best Defensive Pass:")
-    # for card in defPass:
-    #     print(card, end=", ")
-    # print()
-    # print("Average Crib Score:")
-    # print(bestDefPts)
-    # print("\n")
+    else:
+        print("\n\nBest Defensive Pass:")
+        printStats(highestDef, defScore, optimalDefCuts, defPass, defCrib)
 
-    print("Safest Pass (best difference between avg hand and avg crib) when not dealer")
-    print("Hand:")
-    for card in safest:
-        print(card, end=", ")
-    print()
-    print("Average Hand Score:")
-    print(round(bestDifferentialHand, 3))
-    for card in safePass:
-        print(card, end=", ")
-    print()
-    print("Average Crib Score:")
-    print(round(bestDifferentialCrib, 3))
-    
-    print("Difference between hand and crib:")
-    print(round(bestDifferential, 3))
-    print("\n")
-    
-    print("Best sum of crib and hand for dealer")
-    for card in sumHand:
-        print(card, end=", ")
-    print()
-    print("Pass:")
-    for card in sumPass:
-        print(card, end=", ")
-    print("Average Hand Score:")
-    print(round(bestSumHandPts, 3))
-    print("Average Crib Score:")
-    print(round(bestSumCribPts, 3))
-    print("Sum of hand and crib:")
-    print(round(bestSum, 3))
-
-
-if __name__ == "__main__":
-    hand = [Card(12, "s"), Card(3, "c"), Card(5, "h"), Card(5, "d"),Card(6, "s"), Card(6, "c")]
-    deck = makeDeck(hand)
-    random.shuffle(deck)
-
-    # print(prepass[0])
-    # print(prepass[1])
-    # print(getAvgCribScore(deck, [prepass[0], prepass[1]]))
-    
-    getOptimalPass(deck, hand)
+        print("\n\nSafest Pass (best difference between avg hand and avg crib) when not dealer")
+        printStats(safest, bestDifferentialHand, optimalSafeCuts, safePass, safeCrib)
+        print("Average difference between hand and crib:")
+        print(round(safest - safeCrib, 3))
